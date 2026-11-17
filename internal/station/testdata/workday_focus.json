@@ -1,0 +1,15 @@
+{
+  "id": "workday-focus",
+  "title": "Deep Work Synth & Pulse",
+  "prompt": "Instrumental electronic, steady ambient techno, and lyric-free post-rock for deep workday concentration",
+  "dayparts": ["morning", "midday", "afternoon"],
+  "archetype": "focus",
+  "track_ids": [
+    "seed-focus-workday-01",
+    "seed-focus-workday-02",
+    "seed-focus-workday-03",
+    "seed-focus-workday-04",
+    "seed-focus-workday-05"
+  ],
+  "min_viable_tracks": 5
+}
