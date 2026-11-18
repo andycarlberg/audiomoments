@@ -1,0 +1,15 @@
+{
+  "id": "evening-focus",
+  "title": "Late Night Ambient Study",
+  "prompt": "Atmospheric minimalist piano, warm analog synth pads, and calm lyric-free soundscapes for evening and late-night focus",
+  "dayparts": ["evening", "night"],
+  "archetype": "focus",
+  "track_ids": [
+    "seed-focus-evening-01",
+    "seed-focus-evening-02",
+    "seed-focus-evening-03",
+    "seed-focus-evening-04",
+    "seed-focus-evening-05"
+  ],
+  "min_viable_tracks": 5
+}

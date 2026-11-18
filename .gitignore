@@ -1,6 +1,9 @@
 # Process & blog drafting notes (local only)
 notes/
 
+# Local runtime data
+/stations/
+
 # Go
 bin/
 dist/

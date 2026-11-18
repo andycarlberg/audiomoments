@@ -1,0 +1,15 @@
+{
+  "id": "morning-mellow",
+  "title": "Acoustic Sunrise",
+  "prompt": "Gentle acoustic guitar, warm folk, and soft vocal melodies for an easy morning wake-up and relaxed midday listening",
+  "dayparts": ["morning", "midday"],
+  "archetype": "mellow",
+  "track_ids": [
+    "seed-mellow-morning-01",
+    "seed-mellow-morning-02",
+    "seed-mellow-morning-03",
+    "seed-mellow-morning-04",
+    "seed-mellow-morning-05"
+  ],
+  "min_viable_tracks": 5
+}

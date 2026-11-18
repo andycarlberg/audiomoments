@@ -1,0 +1,15 @@
+{
+  "id": "evening-upbeat",
+  "title": "Golden Hour Groove",
+  "prompt": "Feel-good upbeat funk, nu-disco, and lively melodic grooves for midday momentum and evening socializing",
+  "dayparts": ["midday", "evening", "night"],
+  "archetype": "upbeat",
+  "track_ids": [
+    "seed-upbeat-evening-01",
+    "seed-upbeat-evening-02",
+    "seed-upbeat-evening-03",
+    "seed-upbeat-evening-04",
+    "seed-upbeat-evening-05"
+  ],
+  "min_viable_tracks": 5
+}

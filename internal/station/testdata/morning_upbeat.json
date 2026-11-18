@@ -1,0 +1,15 @@
+{
+  "id": "morning-upbeat",
+  "title": "Espresso & Indie Drive",
+  "prompt": "Upbeat morning indie rock, energetic synthpop, and driving rhythms for waking up and commuting",
+  "dayparts": ["morning", "afternoon"],
+  "archetype": "upbeat",
+  "track_ids": [
+    "seed-upbeat-morning-01",
+    "seed-upbeat-morning-02",
+    "seed-upbeat-morning-03",
+    "seed-upbeat-morning-04",
+    "seed-upbeat-morning-05"
+  ],
+  "min_viable_tracks": 5
+}

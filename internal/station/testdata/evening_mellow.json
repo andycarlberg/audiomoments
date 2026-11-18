@@ -1,0 +1,15 @@
+{
+  "id": "evening-mellow",
+  "title": "Fireside Unwind",
+  "prompt": "Mellow downtempo, laid-back indie folk, and warm evening acoustic tracks for unwinding after work",
+  "dayparts": ["afternoon", "evening", "night"],
+  "archetype": "mellow",
+  "track_ids": [
+    "seed-mellow-evening-01",
+    "seed-mellow-evening-02",
+    "seed-mellow-evening-03",
+    "seed-mellow-evening-04",
+    "seed-mellow-evening-05"
+  ],
+  "min_viable_tracks": 5
+}
