@@ -98,6 +98,11 @@ func TestStation_Validate(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name:    "invalid UTF-8 Title",
+			mutate:  func(s *station.Station) { s.Title = "Bad\xffTitle" },
+			wantErr: true,
+		},
+		{
 			name:    "empty Prompt",
 			mutate:  func(s *station.Station) { s.Prompt = "" },
 			wantErr: true,
@@ -105,6 +110,11 @@ func TestStation_Validate(t *testing.T) {
 		{
 			name:    "whitespace Prompt",
 			mutate:  func(s *station.Station) { s.Prompt = "   " },
+			wantErr: true,
+		},
+		{
+			name:    "invalid UTF-8 Prompt",
+			mutate:  func(s *station.Station) { s.Prompt = "Bad\xffPrompt" },
 			wantErr: true,
 		},
 		{
@@ -158,6 +168,11 @@ func TestStation_Validate(t *testing.T) {
 		{
 			name:    "blank track ID",
 			mutate:  func(s *station.Station) { s.TrackIDs = []string{"t1", "  ", "t3"} },
+			wantErr: true,
+		},
+		{
+			name:    "invalid UTF-8 track ID",
+			mutate:  func(s *station.Station) { s.TrackIDs = []string{"t1", "\xff", "\xfe"} },
 			wantErr: true,
 		},
 		{
@@ -342,6 +357,18 @@ func TestSaveFile(t *testing.T) {
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("round-trip mismatch:\n got: %+v\nwant: %+v", got, want)
 		}
+
+		want.Title = "Updated Title"
+		if err := station.SaveFile(dir, want); err != nil {
+			t.Fatalf("SaveFile() overwrite failed: %v", err)
+		}
+		got, err = station.LoadFile(path)
+		if err != nil {
+			t.Fatalf("LoadFile() overwrite round-trip failed: %v", err)
+		}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("overwrite round-trip mismatch:\n got: %+v\nwant: %+v", got, want)
+		}
 	})
 
 	t.Run("rejects unfulfilled or invalid station", func(t *testing.T) {
@@ -374,6 +401,14 @@ func TestSaveFile(t *testing.T) {
 		}
 		if err := station.SaveFile(dir, s); err == nil {
 			t.Fatal("SaveFile() expected error when destination file path is a directory, got nil")
+		}
+
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			t.Fatalf("os.ReadDir(%q) unexpected error: %v", dir, err)
+		}
+		if len(entries) != 1 || entries[0].Name() != s.ID+".json" {
+			t.Errorf("expected only blocking dir in %q (no leaked temp files), got %v", dir, entries)
 		}
 	})
 }

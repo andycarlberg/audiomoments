@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/andycarlberg/audiomoments/internal/clock"
 )
@@ -112,11 +113,11 @@ func (s Station) Validate() error {
 	if !isValidStationID(s.ID) {
 		return fmt.Errorf("invalid station id %q: must be non-empty and contain only alphanumeric characters, hyphens, or underscores", s.ID)
 	}
-	if strings.TrimSpace(s.Title) == "" {
-		return fmt.Errorf("station %q: title is required", s.ID)
+	if !utf8.ValidString(s.Title) || strings.TrimSpace(s.Title) == "" {
+		return fmt.Errorf("station %q: title must be non-empty valid UTF-8", s.ID)
 	}
-	if strings.TrimSpace(s.Prompt) == "" {
-		return fmt.Errorf("station %q: prompt is required", s.ID)
+	if !utf8.ValidString(s.Prompt) || strings.TrimSpace(s.Prompt) == "" {
+		return fmt.Errorf("station %q: prompt must be non-empty valid UTF-8", s.ID)
 	}
 	if !IsValidArchetype(s.Archetype) {
 		return fmt.Errorf("station %q: invalid archetype %q", s.ID, s.Archetype)
@@ -145,8 +146,8 @@ func (s Station) Validate() error {
 
 	seenTracks := make(map[string]struct{}, len(s.TrackIDs))
 	for i, trackID := range s.TrackIDs {
-		if strings.TrimSpace(trackID) == "" {
-			return fmt.Errorf("station %q: track_ids[%d] must not be blank", s.ID, i)
+		if !utf8.ValidString(trackID) || strings.TrimSpace(trackID) == "" {
+			return fmt.Errorf("station %q: track_ids[%d] must be non-blank valid UTF-8", s.ID, i)
 		}
 		if _, exists := seenTracks[trackID]; exists {
 			return fmt.Errorf("station %q: duplicate track_id %q", s.ID, trackID)
@@ -157,7 +158,7 @@ func (s Station) Validate() error {
 	return nil
 }
 
-// SaveFile validates s and writes it as indented JSON to <dir>/<s.ID>.json.
+// SaveFile validates s and atomically writes it as indented JSON to <dir>/<s.ID>.json.
 func SaveFile(dir string, s Station) error {
 	if err := s.Validate(); err != nil {
 		return fmt.Errorf("save station %q: %w", s.ID, err)
@@ -170,10 +171,32 @@ func SaveFile(dir string, s Station) error {
 		return fmt.Errorf("marshal station %q: %w", s.ID, err)
 	}
 	data = append(data, '\n')
-	path := filepath.Join(dir, s.ID+".json")
-	if err := os.WriteFile(path, data, 0o600); err != nil {
-		return fmt.Errorf("write station %q: %w", path, err)
+
+	tmpFile, err := os.CreateTemp(dir, s.ID+".*.tmp")
+	if err != nil {
+		return fmt.Errorf("create temp station file in %q: %w", dir, err)
 	}
+	tmpPath := tmpFile.Name()
+	cleanupTmp := true
+	defer func() {
+		if cleanupTmp {
+			_ = os.Remove(tmpPath)
+		}
+	}()
+
+	if _, err := tmpFile.Write(data); err != nil {
+		_ = tmpFile.Close()
+		return fmt.Errorf("write temp station %q: %w", tmpPath, err)
+	}
+	if err := tmpFile.Close(); err != nil {
+		return fmt.Errorf("close temp station %q: %w", tmpPath, err)
+	}
+
+	path := filepath.Join(dir, s.ID+".json")
+	if err := os.Rename(tmpPath, path); err != nil {
+		return fmt.Errorf("replace station %q: %w", path, err)
+	}
+	cleanupTmp = false
 	return nil
 }
 
