@@ -1,3 +1,4 @@
+// Package station defines the AudioMoments station schema, seed templates, and persistence helpers.
 package station
 
 import (
@@ -15,6 +16,7 @@ import (
 // Archetype classifies the situational listening intent of a station.
 type Archetype string
 
+// Supported station listening intent archetypes.
 const (
 	ArchetypeUpbeat Archetype = "upbeat"
 	ArchetypeFocus  Archetype = "focus"
@@ -206,7 +208,9 @@ func LoadFile(path string) (Station, error) {
 	if err != nil {
 		return Station{}, fmt.Errorf("open station %q: %w", path, err)
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	dec := json.NewDecoder(f)
 	dec.DisallowUnknownFields()

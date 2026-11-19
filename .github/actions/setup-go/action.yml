@@ -1,0 +1,17 @@
+name: "Set up Go environment"
+description: "Install the Go toolchain from go.mod with optional build and module caching."
+inputs:
+  cache:
+    description: "Enable actions/setup-go build and module caching"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v7
+      with:
+        go-version-file: go.mod
+        cache: ${{ inputs.cache == 'true' }}
+        cache-dependency-path: go.mod

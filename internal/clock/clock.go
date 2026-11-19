@@ -1,3 +1,4 @@
+// Package clock maps timestamps into AudioMoments daypart windows and day types.
 package clock
 
 import "time"
@@ -5,6 +6,7 @@ import "time"
 // Daypart represents one of the five daily situational listening windows.
 type Daypart string
 
+// Recognized daily situational listening windows.
 const (
 	DaypartMorning   Daypart = "morning"
 	DaypartMidday    Daypart = "midday"
@@ -16,6 +18,7 @@ const (
 // DayType represents one of the four weekly temporal profiles.
 type DayType string
 
+// Recognized weekly temporal profiles.
 const (
 	DayTypeWeekday  DayType = "weekday"
 	DayTypeFriday   DayType = "friday"

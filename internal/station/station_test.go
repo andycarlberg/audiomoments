@@ -54,7 +54,7 @@ func TestStation_Validate(t *testing.T) {
 	}{
 		{
 			name:    "valid station",
-			mutate:  func(s *station.Station) {},
+			mutate:  func(*station.Station) {},
 			wantErr: false,
 		},
 		{
@@ -275,6 +275,22 @@ func TestLoadFile_And_LoadBank(t *testing.T) {
 		}
 	})
 
+	t.Run("rejects trailing malformed syntax after root object", func(t *testing.T) {
+		dir := t.TempDir()
+		path := writeTestFile(t, dir, "trailing_syntax.json", `{
+  "id": "morning-upbeat",
+  "title": "Espresso & Indie Drive",
+  "prompt": "Test situational prompt",
+  "dayparts": ["morning"],
+  "archetype": "upbeat",
+  "track_ids": ["t1"],
+  "min_viable_tracks": 1
+} invalid-trailing-token`)
+		if _, err := station.LoadFile(path); err == nil {
+			t.Fatal("LoadFile() expected error for trailing malformed syntax, got nil")
+		}
+	})
+
 	t.Run("rejects malformed JSON", func(t *testing.T) {
 		dir := t.TempDir()
 		path := writeTestFile(t, dir, "malformed.json", `{"id": "broken"`)
@@ -332,6 +348,13 @@ func TestLoadFile_And_LoadBank(t *testing.T) {
 		missing := filepath.Join(t.TempDir(), "does-not-exist")
 		if _, err := station.LoadBank(missing); err == nil {
 			t.Fatal("LoadBank() expected error for non-existent directory, got nil")
+		}
+	})
+
+	t.Run("fails on non-existent file", func(t *testing.T) {
+		missing := filepath.Join(t.TempDir(), "does-not-exist.json")
+		if _, err := station.LoadFile(missing); err == nil {
+			t.Fatal("LoadFile() expected error for non-existent file, got nil")
 		}
 	})
 }

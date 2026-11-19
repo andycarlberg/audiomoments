@@ -1,3 +1,4 @@
+// Package config loads and validates AudioMoments runtime settings from the environment.
 package config
 
 import (
