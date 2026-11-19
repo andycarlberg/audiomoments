@@ -6,30 +6,61 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    name: Test & Vet
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v7
+        uses: ./.github/actions/setup-go
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v9
         with:
-          go-version-file: go.mod
+          version: latest
 
-      - name: Check formatting (gofmt)
-        run: |
-          unformatted=$(gofmt -l .)
-          if [ -n "$unformatted" ]; then
-            echo "Unformatted files:"
-            echo "$unformatted"
-            exit 1
-          fi
+  vulncheck:
+    name: Vulncheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
 
-      - name: Run go vet
-        run: go vet ./...
+      - name: Set up Go
+        uses: ./.github/actions/setup-go
 
-      - name: Run unit tests
-        run: go test -v -race ./...
+      - name: Cache govulncheck binary
+        id: cache-govulncheck
+        uses: actions/cache@v6
+        with:
+          path: ~/go/bin/govulncheck
+          key: govulncheck-${{ runner.os }}-${{ hashFiles('go.mod') }}-v1.10.0
+
+      - name: Install govulncheck
+        if: steps.cache-govulncheck.outputs.cache-hit != 'true'
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.10.0
+
+      - name: Run govulncheck
+        run: govulncheck ./...
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: ./.github/actions/setup-go
+        with:
+          cache: "true"
+
+      - name: Run tests with race detector and coverage
+        run: go test -v -race -cover ./...
