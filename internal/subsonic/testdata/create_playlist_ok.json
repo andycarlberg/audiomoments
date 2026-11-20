@@ -1,0 +1,39 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.53.3",
+    "openSubsonic": true,
+    "playlist": {
+      "id": "pl-created-001",
+      "name": "[Moment] Focus: Deep Work Synth & Pulse",
+      "comment": "",
+      "owner": "admin",
+      "public": false,
+      "songCount": 2,
+      "duration": 420,
+      "created": "2026-11-20T12:00:00Z",
+      "changed": "2026-11-20T12:00:00Z",
+      "readonly": false,
+      "entry": [
+        {
+          "id": "tr-101",
+          "parent": "al-1",
+          "title": "Pulse One",
+          "artist": "Synth Collective",
+          "duration": 200,
+          "streamId": "tr-101"
+        },
+        {
+          "id": "tr-202",
+          "parent": "al-2",
+          "title": "Pulse Two",
+          "artist": "Ambient Engine",
+          "duration": 220,
+          "streamId": "tr-202"
+        }
+      ]
+    }
+  }
+}
