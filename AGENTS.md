@@ -16,8 +16,8 @@ Project context and guardrails for AI coding and review agents working on AudioM
 - `internal/station`: Station bank schema, validation, strict JSON decoding (`DisallowUnknownFields` + trailing-token check), `SeedStations()` prompt templates, and atomic persistence (`SaveFile`, `LoadFile`, `LoadBank`).
 - `docs/decisions/`: Architecture Decision Records (ADRs).
 - **Fixtures vs. Runtime State**:
-  - Subsonic `track_ids` are installation-specific database IDs from a user's local library. Never commit static or synthetic station JSON files to `/stations/` or the repo root.
-  - `/stations/` (default `STATION_BANK_PATH`) is git-ignored runtime state populated via AudioMuse prompt fulfillment (`station.SaveFile`).
+  - Subsonic `track_ids` are installation-specific database IDs from a user's local library. Never commit static or synthetic station JSON files to `stations/` or the repo root.
+  - `./stations` (default `STATION_BANK_PATH`, relative to the process working directory; git-ignored at the repository root via `/stations/`) is runtime state populated via AudioMuse prompt fulfillment (`station.SaveFile`).
   - Synthetic station JSON fixtures for tests belong strictly in package `testdata/` directories (e.g., `internal/station/testdata/`).
 
 ## TDD & Verification Commands
