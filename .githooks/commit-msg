@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -lt 1 ] || [ -z "${1:-}" ] || [ ! -f "$1" ]; then
+	echo "error: commit-msg hook requires a commit message file path" >&2
+	exit 1
+fi
+
+repo_root=$(git rev-parse --show-toplevel)
+
+if [ -x "$repo_root/bin/commitlint" ]; then
+	commitlint_bin="$repo_root/bin/commitlint"
+elif command -v commitlint >/dev/null 2>&1; then
+	commitlint_bin=$(command -v commitlint)
+else
+	echo "error: commitlint not found; run 'make setup-hooks' to install pinned hooks" >&2
+	exit 1
+fi
+
+exec "$commitlint_bin" lint --message "$1" </dev/null

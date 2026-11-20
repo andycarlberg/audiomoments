@@ -1,0 +1,45 @@
+#!/bin/sh
+set -eu
+
+repo_root=$(git rev-parse --show-toplevel)
+
+if [ -x "$repo_root/bin/gitleaks" ]; then
+	gitleaks_bin="$repo_root/bin/gitleaks"
+elif command -v gitleaks >/dev/null 2>&1; then
+	gitleaks_bin=$(command -v gitleaks)
+else
+	echo "error: gitleaks not found; run 'make setup-hooks' to install pinned hooks" >&2
+	exit 1
+fi
+
+"$gitleaks_bin" git --pre-commit --staged --redact --no-banner
+
+staged_go_files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.go')
+if [ -n "$staged_go_files" ]; then
+	if ! command -v gofmt >/dev/null 2>&1; then
+		echo "error: gofmt not found on PATH" >&2
+		exit 1
+	fi
+
+	unformatted=""
+	while IFS= read -r file; do
+		[ -n "$file" ] || continue
+		if ! formatted_check=$(git show ":$file" | gofmt -l); then
+			echo "error: gofmt failed on staged file: $file" >&2
+			exit 1
+		fi
+		if [ -n "$formatted_check" ]; then
+			unformatted="${unformatted}  ${file}
+"
+		fi
+	done <<EOF
+$staged_go_files
+EOF
+
+	if [ -n "$unformatted" ]; then
+		echo "error: staged Go files are not gofmt-formatted:" >&2
+		printf '%s' "$unformatted" >&2
+		echo "Run 'gofmt -w <file>' and re-stage." >&2
+		exit 1
+	fi
+fi
