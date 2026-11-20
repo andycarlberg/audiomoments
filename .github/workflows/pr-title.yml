@@ -1,12 +1,12 @@
 name: PR Title
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [main]
     types: [opened, edited, reopened, synchronize]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
