@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
@@ -24,7 +27,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: latest
+          version: v2.15.0
 
   vulncheck:
     name: Vulncheck
@@ -36,19 +39,14 @@ jobs:
       - name: Set up Go
         uses: ./.github/actions/setup-go
 
-      - name: Cache govulncheck binary
-        id: cache-govulncheck
+      - name: Cache vulncheck binary
         uses: actions/cache@v6
         with:
-          path: ~/go/bin/govulncheck
-          key: govulncheck-${{ runner.os }}-${{ hashFiles('go.mod') }}-v1.10.0
+          path: bin/
+          key: vulncheck-${{ runner.os }}-${{ hashFiles('Makefile', 'go.mod') }}
 
-      - name: Install govulncheck
-        if: steps.cache-govulncheck.outputs.cache-hit != 'true'
-        run: go install golang.org/x/vuln/cmd/govulncheck@v1.10.0
-
-      - name: Run govulncheck
-        run: govulncheck ./...
+      - name: Run vulncheck
+        run: make vulncheck
 
   test:
     name: Test
@@ -63,4 +61,46 @@ jobs:
           cache: "true"
 
       - name: Run tests with race detector and coverage
-        run: go test -v -race -cover ./...
+        run: make test
+
+  secrets:
+    name: Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: ./.github/actions/setup-go
+
+      - name: Cache gitleaks binary
+        uses: actions/cache@v6
+        with:
+          path: bin/
+          key: gitleaks-${{ runner.os }}-${{ hashFiles('Makefile', 'go.mod') }}
+
+      - name: Run gitleaks
+        run: make secrets
+
+  config-lint:
+    name: Config Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: ./.github/actions/setup-go
+        with:
+          cache: "true"
+
+      - name: Run actionlint
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+
+      - name: Run yamllint
+        run: pipx run --spec "yamllint==1.38.0" yamllint --strict .
+
+      - name: Run shellcheck on git hooks
+        run: shellcheck .githooks/*

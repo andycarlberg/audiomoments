@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(git rev-parse --show-toplevel)
+
+if [ -x "$repo_root/bin/gitleaks" ]; then
+	gitleaks_bin="$repo_root/bin/gitleaks"
+elif command -v gitleaks >/dev/null 2>&1; then
+	gitleaks_bin=$(command -v gitleaks)
+else
+	echo "error: gitleaks not found; run 'make setup-hooks' to install pinned hooks" >&2
+	exit 1
+fi
+
+"$gitleaks_bin" git --pre-commit --staged --redact --no-banner
+
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+staged_list="$tmpdir/staged_go_files"
+blob_file="$tmpdir/staged_blob.go"
+
+git diff --cached --name-only -z --diff-filter=ACMR -- '*.go' >"$staged_list"
+
+if [ -s "$staged_list" ]; then
+	if ! command -v gofmt >/dev/null 2>&1; then
+		echo "error: gofmt not found on PATH" >&2
+		exit 1
+	fi
+
+	unformatted=()
+	while IFS= read -r -d '' file; do
+		[ -n "$file" ] || continue
+		if ! git show ":$file" >"$blob_file"; then
+			echo "error: failed to read staged file: $file" >&2
+			exit 1
+		fi
+		if ! formatted_check=$(gofmt -l "$blob_file"); then
+			echo "error: gofmt failed on staged file: $file" >&2
+			exit 1
+		fi
+		if [ -n "$formatted_check" ]; then
+			unformatted+=("$file")
+		fi
+	done <"$staged_list"
+
+	if [ "${#unformatted[@]}" -gt 0 ]; then
+		echo "error: staged Go files are not gofmt-formatted:" >&2
+		printf '  %s\n' "${unformatted[@]}" >&2
+		echo "Run 'gofmt -w <file>' and re-stage." >&2
+		exit 1
+	fi
+fi

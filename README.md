@@ -34,12 +34,25 @@ Because the Subsonic protocol is session-unaware and does not transmit client lo
 
 ## Development & Testing
 
-Built with standard Go (1.22+). Requires zero external runtime dependencies.
+Built with standard Go (`1.27.4`). Requires zero external runtime dependencies.
+
+Bootstrap hooks and run the full verification suite via `Makefile` (`make verify` auto-installs pinned `golangci-lint v2.15.0`, `govulncheck v1.10.0`, and `gitleaks v8.30.1` into `bin/`):
 
 ```bash
-# Run unit tests
-go test ./...
+# Install pinned bin/gitleaks (v8.30.1) and bin/commitlint (v0.12.0) and activate .githooks/
+make setup-hooks
+
+# Run all local checks (test, lint, vulncheck, secrets)
+make verify
 ```
+
+- **Local Git Hooks (`.githooks/`)**:
+  - `pre-commit`: Scans staged changes for secrets (`gitleaks`) and checks staged `.go` files with `gofmt`.
+  - `commit-msg`: Enforces [Conventional Commits](https://www.conventionalcommits.org/) via `commitlint`.
+  - `pre-push`: Runs `make test` (`go test -v -race -cover ./...`) and `make lint` (`golangci-lint run`) before pushing non-delete refs.
+- **CI Gates (`.github/workflows/`)**:
+  - `ci.yml`: Runs `Lint` (`golangci-lint v2.15.0`), `Vulncheck` (`make vulncheck`), `Test` (`make test`), `Secrets` (`make secrets`), and `Config Lint` (`actionlint`, `yamllint`, `shellcheck`).
+  - `pr-title.yml`: Enforces Conventional Commits on pull request titles (`PR Title`), including single-commit squash defaults.
 
 ---
 
