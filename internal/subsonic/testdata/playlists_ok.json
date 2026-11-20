@@ -1,0 +1,38 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.53.3",
+    "openSubsonic": true,
+    "playlists": {
+      "playlist": [
+        {
+          "id": "b48325a9-1d14-4e64-9a21-01a2b3c4d5e6",
+          "name": "[Moment] Upbeat: Espresso & Indie Drive",
+          "comment": "Morning upbeat station",
+          "owner": "admin",
+          "public": false,
+          "songCount": 12,
+          "duration": 2540,
+          "created": "2026-11-19T06:00:00Z",
+          "changed": "2026-11-19T06:00:00Z",
+          "coverArt": "pl-b48325a9",
+          "readonly": false
+        },
+        {
+          "id": "9c2140fe-8a11-41b0-bc33-778899aabbcc",
+          "name": "Late Night Favorites",
+          "comment": "",
+          "owner": "listener",
+          "public": true,
+          "songCount": 5,
+          "duration": 980,
+          "created": "2026-10-01T21:15:00Z",
+          "changed": "2026-11-10T22:00:00Z",
+          "readonly": true
+        }
+      ]
+    }
+  }
+}

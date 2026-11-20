@@ -60,3 +60,4 @@ make verify
 
 - [ADR-0001: Server-Configured Timezone Locality](docs/decisions/0001-server-configured-timezone-locality.md)
 - [ADR-0002: Standalone Subsonic Sidecar in Go](docs/decisions/0002-standalone-go-sidecar.md)
+- [ADR-0003: Stdlib-Only OpenSubsonic REST Client](docs/decisions/0003-stdlib-subsonic-client.md)

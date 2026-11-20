@@ -14,6 +14,7 @@ Project context and guardrails for AI coding and review agents working on AudioM
 - `internal/clock`: Pure temporal domain logic (`Daypart`, `DayType`, `Moment`, `Evaluate`).
 - `internal/config`: Environment configuration loader and validator (`SUBSONIC_URL`, `SUBSONIC_USER`, `SUBSONIC_PASSWORD`, `STATION_BANK_PATH`, `TIMEZONE`).
 - `internal/station`: Station bank schema, validation, strict JSON decoding (`DisallowUnknownFields` + trailing-token check), `SeedStations()` prompt templates, and atomic persistence (`SaveFile`, `LoadFile`, `LoadBank`).
+- `internal/subsonic`: Stdlib-only OpenSubsonic/Subsonic REST client ([ADR-0003](docs/decisions/0003-stdlib-subsonic-client.md)) supporting per-request MD5 salt+token authentication, `ping`, `getPlaylists`, `createPlaylist`, and `updatePlaylist`.
 - `docs/decisions/`: Architecture Decision Records (ADRs).
 - **Fixtures vs. Runtime State**:
   - Subsonic `track_ids` are installation-specific database IDs from a user's local library. Never commit static or synthetic station JSON files to `stations/` or the repo root.
